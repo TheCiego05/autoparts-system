@@ -10,32 +10,39 @@
 
 <style>
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#020617;
   color:white;
   display:flex;
   align-items:center;
   justify-content:center;
   height:100vh;
+  margin:0;
 }
 .box{
   background:#111827;
   padding:30px;
   border-radius:12px;
   text-align:center;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 button{
-  padding:10px 20px;
+  padding:12px 25px;
   background:#dc2626;
   border:none;
   color:white;
   border-radius:8px;
   cursor:pointer;
+  font-size:16px;
+}
+button:hover{
+  background:#b91c1c;
 }
 </style>
 </head>
 
 <body>
+
 <div class="box">
   <h1>AutoRepuestos Pro</h1>
   <p>Sistema listo para instalar como App</p>
@@ -43,18 +50,25 @@ button{
 </div>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-
 let deferredPrompt;
 
+// REGISTRAR SERVICE WORKER CORRECTAMENTE
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('Service Worker activo'))
+      .catch(err => console.log('Error SW:', err));
+  });
+}
+
+// CAPTURAR EVENTO DE INSTALACIÓN
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   document.getElementById('installBtn').style.display = 'block';
 });
 
+// BOTÓN INSTALAR
 document.getElementById('installBtn').addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
