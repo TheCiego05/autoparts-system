@@ -9,87 +9,161 @@
 <meta name="theme-color" content="#dc2626">
 
 <style>
-body{margin:0;font-family:Arial;background:#020617;color:white;}
-header{background:#dc2626;padding:15px;display:flex;justify-content:space-between;}
-.container{display:flex;}
-.sidebar{width:220px;background:#111827;height:100vh;padding:10px;}
-.sidebar button{width:100%;margin-bottom:10px;padding:10px;background:#1f2937;border:none;color:white;}
-.content{flex:1;padding:20px;}
-.card{background:#111827;padding:15px;margin-bottom:10px;border-radius:8px;}
-input{padding:8px;margin:5px;}
-button{padding:8px 12px;background:#dc2626;border:none;color:white;cursor:pointer;}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-.product{background:#1f2937;padding:10px;border-radius:8px;cursor:pointer;text-align:center;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
+body{background:#0f172a;color:white;display:flex;height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:250px;
+  background:#020617;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.sidebar h2{color:#dc2626;margin-bottom:20px}
+.sidebar button{
+  background:none;
+  border:none;
+  color:#cbd5f5;
+  padding:12px;
+  text-align:left;
+  border-radius:8px;
+  cursor:pointer;
+}
+.sidebar button:hover{
+  background:#dc2626;
+  color:white;
+}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column}
+
+/* HEADER */
+.header{
+  background:#020617;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #1e293b;
+}
+
+/* CONTENT */
+.content{padding:20px;overflow:auto}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+.card{
+  background:#020617;
+  padding:20px;
+  border-radius:10px;
+  border-left:5px solid #dc2626;
+}
+
+/* POS GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:15px;
+}
+.product{
+  background:#020617;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  border:1px solid #1e293b;
+}
+.product:hover{background:#dc2626}
+
+/* INPUT */
+input{
+  padding:10px;
+  margin:5px 0;
+  width:100%;
+  border-radius:6px;
+  border:none;
+}
+
+/* BUTTON */
+.btn{
+  background:#dc2626;
+  padding:10px;
+  border:none;
+  color:white;
+  cursor:pointer;
+  border-radius:6px;
+  margin-top:10px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h2 id="empresaNombre">AutoRepuestos Pro</h2>
-  <button id="installBtn" style="display:none">Instalar</button>
-</header>
-
-<div class="container">
-
 <div class="sidebar">
+  <h2>AutoParts</h2>
   <button onclick="view('dashboard')">Dashboard</button>
   <button onclick="view('inventario')">Inventario</button>
-  <button onclick="view('pos')">POS</button>
+  <button onclick="view('pos')">Punto de Venta</button>
   <button onclick="view('historial')">Historial</button>
-  <button onclick="view('config')">Configuración</button>
+</div>
+
+<div class="main">
+
+<div class="header">
+  <h3 id="empresaNombre">AutoRepuestos Pro</h3>
+  <button id="installBtn" class="btn" style="display:none">Instalar</button>
 </div>
 
 <div class="content">
 
+<!-- DASHBOARD -->
 <div id="dashboard" class="view">
-  <div class="card">Ventas Totales: RD$ <span id="ventasHoy">0</span></div>
-  <div class="card">Ganancia: RD$ <span id="ganancia">0</span></div>
+  <div class="cards">
+    <div class="card">Ventas: RD$ <span id="ventasHoy">0</span></div>
+    <div class="card">Ganancia: RD$ <span id="ganancia">0</span></div>
+  </div>
 </div>
 
+<!-- INVENTARIO -->
 <div id="inventario" class="view" style="display:none;">
-  <h3>Agregar Producto</h3>
+  <h3>Nuevo Producto</h3>
   <input id="nombre" placeholder="Nombre">
   <input id="compra" type="number" placeholder="Precio Compra">
   <input id="venta" type="number" placeholder="Precio Venta">
-  <button onclick="addProducto()">Guardar</button>
+  <button class="btn" onclick="addProducto()">Guardar</button>
 
-  <h3>Lista</h3>
   <div id="lista"></div>
 </div>
 
+<!-- POS -->
 <div id="pos" class="view" style="display:none;">
-  <h3>Punto de Venta</h3>
+  <h3>Venta</h3>
   <div class="grid" id="productos"></div>
-  <h3>Total: RD$ <span id="total">0</span></h3>
-  <button onclick="finalizar()">Finalizar Venta</button>
+  <h2>Total RD$ <span id="total">0</span></h2>
+  <button class="btn" onclick="finalizar()">Cobrar</button>
 </div>
 
+<!-- HISTORIAL -->
 <div id="historial" class="view" style="display:none;">
-  <h3>Ventas</h3>
   <div id="ventasLista"></div>
-</div>
-
-<div id="config" class="view" style="display:none;">
-  <h3>Empresa</h3>
-  <input id="empresaInput" placeholder="Nombre negocio">
-  <button onclick="guardarEmpresa()">Guardar</button>
 </div>
 
 </div>
 </div>
 
 <script>
-// DATA
 let productos = JSON.parse(localStorage.getItem('productos')) || [];
 let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
-let empresa = localStorage.getItem('empresa') || 'AutoRepuestos Pro';
-document.getElementById('empresaNombre').innerText = empresa;
-
 let carrito = [];
 let total = 0;
 
-// NAVEGACIÓN
+// NAV
 function view(v){
   document.querySelectorAll('.view').forEach(x=>x.style.display='none');
   document.getElementById(v).style.display='block';
@@ -98,103 +172,56 @@ function view(v){
 
 // INVENTARIO
 function addProducto(){
-  let p = {
-    nombre: document.getElementById('nombre').value,
-    compra: +document.getElementById('compra').value,
-    venta: +document.getElementById('venta').value
-  };
-  productos.push(p);
-  localStorage.setItem('productos', JSON.stringify(productos));
+  productos.push({
+    nombre:nombre.value,
+    compra:+compra.value,
+    venta:+venta.value
+  });
+  localStorage.setItem('productos',JSON.stringify(productos));
   render();
 }
 
-// RENDER CORREGIDO
+// RENDER
 function render(){
-  let lista = document.getElementById('lista');
-  let productosDiv = document.getElementById('productos');
-  let ventasLista = document.getElementById('ventasLista');
+  let lista=document.getElementById('lista');
+  let prod=document.getElementById('productos');
+  let hist=document.getElementById('ventasLista');
 
   if(lista) lista.innerHTML='';
-  if(productosDiv) productosDiv.innerHTML='';
-  if(ventasLista) ventasLista.innerHTML='';
+  if(prod) prod.innerHTML='';
+  if(hist) hist.innerHTML='';
 
   productos.forEach((p,i)=>{
     if(lista){
-      lista.innerHTML += `<div class="card">
-        ${p.nombre} - Compra: ${p.compra} / Venta: ${p.venta}
-      </div>`;
+      lista.innerHTML+=`<div class="card">${p.nombre} RD$${p.venta}</div>`;
     }
 
-    if(productosDiv){
-      productosDiv.innerHTML += `
-        <div class="product" onclick="addCarrito(${i})">
-          ${p.nombre}<br>RD$ ${p.venta}
-        </div>`;
+    if(prod){
+      prod.innerHTML+=`<div class="product" onclick="addCarrito(${i})">${p.nombre}<br>RD$${p.venta}</div>`;
     }
   });
-
-  renderHistorial();
-  actualizarDashboard();
-}
-
-// CARRITO
-function addCarrito(i){
-  carrito.push(productos[i]);
-  total += productos[i].venta;
-  document.getElementById('total').innerText = total;
-}
-
-// FINALIZAR VENTA
-function finalizar(){
-  if(carrito.length===0) return;
-
-  ventas.push({
-    fecha: new Date().toLocaleString(),
-    items: carrito,
-    total
-  });
-
-  localStorage.setItem('ventas', JSON.stringify(ventas));
-
-  carrito=[];
-  total=0;
-  document.getElementById('total').innerText = 0;
-  render();
-}
-
-// HISTORIAL
-function renderHistorial(){
-  let ventasLista = document.getElementById('ventasLista');
-  if(!ventasLista) return;
-
-  ventasLista.innerHTML='';
 
   ventas.forEach(v=>{
-    ventasLista.innerHTML += `<div class="card">
-      ${v.fecha} - RD$ ${v.total}
-    </div>`;
+    if(hist){
+      hist.innerHTML+=`<div class="card">${v.fecha} RD$${v.total}</div>`;
+    }
   });
+
+  document.getElementById('ventasHoy').innerText = ventas.reduce((a,b)=>a+b.total,0);
 }
 
-// DASHBOARD
-function actualizarDashboard(){
-  let totalVentas = ventas.reduce((a,b)=>a+b.total,0);
-  let ganancia = ventas.reduce((a,v)=>{
-    return a + v.items.reduce((g,i)=>g+(i.venta-i.compra),0);
-  },0);
-
-  let ventasHoy = document.getElementById('ventasHoy');
-  let gananciaEl = document.getElementById('ganancia');
-
-  if(ventasHoy) ventasHoy.innerText = totalVentas;
-  if(gananciaEl) gananciaEl.innerText = ganancia;
+// POS
+function addCarrito(i){
+  carrito.push(productos[i]);
+  total+=productos[i].venta;
+  document.getElementById('total').innerText=total;
 }
 
-// CONFIG
-function guardarEmpresa(){
-  let val = document.getElementById('empresaInput').value;
-  localStorage.setItem('empresa', val);
-  location.reload();
+function finalizar(){
+  ventas.push({fecha:new Date().toLocaleString(),total});
+  localStorage.setItem('ventas',JSON.stringify(ventas));
+  carrito=[]; total=0;
+  render();
 }
 
 // PWA
@@ -212,12 +239,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   document.getElementById('installBtn').style.display = 'block';
 });
 
-document.getElementById('installBtn').addEventListener('click', async () => {
+installBtn.onclick = async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt = null;
   }
-});
+};
 
 render();
 </script>
