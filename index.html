@@ -42,13 +42,11 @@ button{padding:8px 12px;background:#dc2626;border:none;color:white;cursor:pointe
 
 <div class="content">
 
-<!-- DASHBOARD -->
 <div id="dashboard" class="view">
-  <div class="card">Ventas Hoy: RD$ <span id="ventasHoy">0</span></div>
+  <div class="card">Ventas Totales: RD$ <span id="ventasHoy">0</span></div>
   <div class="card">Ganancia: RD$ <span id="ganancia">0</span></div>
 </div>
 
-<!-- INVENTARIO -->
 <div id="inventario" class="view" style="display:none;">
   <h3>Agregar Producto</h3>
   <input id="nombre" placeholder="Nombre">
@@ -60,7 +58,6 @@ button{padding:8px 12px;background:#dc2626;border:none;color:white;cursor:pointe
   <div id="lista"></div>
 </div>
 
-<!-- POS -->
 <div id="pos" class="view" style="display:none;">
   <h3>Punto de Venta</h3>
   <div class="grid" id="productos"></div>
@@ -68,13 +65,11 @@ button{padding:8px 12px;background:#dc2626;border:none;color:white;cursor:pointe
   <button onclick="finalizar()">Finalizar Venta</button>
 </div>
 
-<!-- HISTORIAL -->
 <div id="historial" class="view" style="display:none;">
   <h3>Ventas</h3>
   <div id="ventasLista"></div>
 </div>
 
-<!-- CONFIG -->
 <div id="config" class="view" style="display:none;">
   <h3>Empresa</h3>
   <input id="empresaInput" placeholder="Nombre negocio">
@@ -94,7 +89,7 @@ document.getElementById('empresaNombre').innerText = empresa;
 let carrito = [];
 let total = 0;
 
-// NAV
+// NAVEGACIÓN
 function view(v){
   document.querySelectorAll('.view').forEach(x=>x.style.display='none');
   document.getElementById(v).style.display='block';
@@ -104,30 +99,38 @@ function view(v){
 // INVENTARIO
 function addProducto(){
   let p = {
-    nombre: nombre.value,
-    compra: +compra.value,
-    venta: +venta.value
+    nombre: document.getElementById('nombre').value,
+    compra: +document.getElementById('compra').value,
+    venta: +document.getElementById('venta').value
   };
   productos.push(p);
   localStorage.setItem('productos', JSON.stringify(productos));
   render();
 }
 
-// RENDER
+// RENDER CORREGIDO
 function render(){
-  lista.innerHTML='';
-  productosDiv = document.getElementById('productos');
-  productosDiv.innerHTML='';
+  let lista = document.getElementById('lista');
+  let productosDiv = document.getElementById('productos');
+  let ventasLista = document.getElementById('ventasLista');
+
+  if(lista) lista.innerHTML='';
+  if(productosDiv) productosDiv.innerHTML='';
+  if(ventasLista) ventasLista.innerHTML='';
 
   productos.forEach((p,i)=>{
-    lista.innerHTML += `<div class="card">
-      ${p.nombre} - Compra: ${p.compra} / Venta: ${p.venta}
-    </div>`;
-
-    productosDiv.innerHTML += `
-      <div class="product" onclick="addCarrito(${i})">
-        ${p.nombre}<br>RD$ ${p.venta}
+    if(lista){
+      lista.innerHTML += `<div class="card">
+        ${p.nombre} - Compra: ${p.compra} / Venta: ${p.venta}
       </div>`;
+    }
+
+    if(productosDiv){
+      productosDiv.innerHTML += `
+        <div class="product" onclick="addCarrito(${i})">
+          ${p.nombre}<br>RD$ ${p.venta}
+        </div>`;
+    }
   });
 
   renderHistorial();
@@ -141,7 +144,7 @@ function addCarrito(i){
   document.getElementById('total').innerText = total;
 }
 
-// FINALIZAR
+// FINALIZAR VENTA
 function finalizar(){
   if(carrito.length===0) return;
 
@@ -161,7 +164,11 @@ function finalizar(){
 
 // HISTORIAL
 function renderHistorial(){
+  let ventasLista = document.getElementById('ventasLista');
+  if(!ventasLista) return;
+
   ventasLista.innerHTML='';
+
   ventas.forEach(v=>{
     ventasLista.innerHTML += `<div class="card">
       ${v.fecha} - RD$ ${v.total}
@@ -176,13 +183,16 @@ function actualizarDashboard(){
     return a + v.items.reduce((g,i)=>g+(i.venta-i.compra),0);
   },0);
 
-  ventasHoy.innerText = totalVentas;
-  document.getElementById('ganancia').innerText = ganancia;
+  let ventasHoy = document.getElementById('ventasHoy');
+  let gananciaEl = document.getElementById('ganancia');
+
+  if(ventasHoy) ventasHoy.innerText = totalVentas;
+  if(gananciaEl) gananciaEl.innerText = ganancia;
 }
 
 // CONFIG
 function guardarEmpresa(){
-  let val = empresaInput.value;
+  let val = document.getElementById('empresaInput').value;
   localStorage.setItem('empresa', val);
   location.reload();
 }
@@ -202,12 +212,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   document.getElementById('installBtn').style.display = 'block';
 });
 
-installBtn.onclick = async () => {
+document.getElementById('installBtn').addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt = null;
   }
-};
+});
 
 render();
 </script>
