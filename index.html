@@ -10,74 +10,185 @@
 
 <style>
 body{
-  font-family: Arial, sans-serif;
+  margin:0;
+  font-family:Arial;
   background:#020617;
   color:white;
+}
+
+header{
+  background:#dc2626;
+  padding:15px;
   display:flex;
+  justify-content:space-between;
   align-items:center;
-  justify-content:center;
-  height:100vh;
-  margin:0;
 }
-.box{
+
+.container{
+  display:flex;
+}
+
+.sidebar{
+  width:200px;
   background:#111827;
-  padding:30px;
-  border-radius:12px;
-  text-align:center;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  height:100vh;
+  padding:10px;
 }
+
+.sidebar button{
+  width:100%;
+  margin-bottom:10px;
+  padding:10px;
+  background:#1f2937;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+.content{
+  flex:1;
+  padding:20px;
+}
+
+.card{
+  background:#111827;
+  padding:15px;
+  margin-bottom:10px;
+  border-radius:8px;
+}
+
+input{
+  padding:8px;
+  margin:5px;
+}
+
 button{
-  padding:12px 25px;
+  padding:8px 12px;
   background:#dc2626;
   border:none;
   color:white;
-  border-radius:8px;
   cursor:pointer;
-  font-size:16px;
-}
-button:hover{
-  background:#b91c1c;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h1>AutoRepuestos Pro</h1>
-  <p>Sistema listo para instalar como App</p>
-  <button id="installBtn" style="display:none">Instalar App</button>
+<header>
+  <h2>AutoRepuestos Pro</h2>
+  <button id="installBtn" style="display:none">Instalar</button>
+</header>
+
+<div class="container">
+
+<div class="sidebar">
+  <button onclick="show('dashboard')">Dashboard</button>
+  <button onclick="show('inventario')">Inventario</button>
+  <button onclick="show('ventas')">Ventas</button>
+</div>
+
+<div class="content">
+
+<div id="dashboard" class="view">
+  <div class="card">
+    <h3>Total Ventas</h3>
+    <p id="totalVentas">RD$ 0</p>
+  </div>
+</div>
+
+<div id="inventario" class="view" style="display:none;">
+  <h3>Agregar Producto</h3>
+  <input id="nombre" placeholder="Nombre">
+  <input id="precio" type="number" placeholder="Precio">
+  <button onclick="agregarProducto()">Guardar</button>
+
+  <h3>Lista</h3>
+  <div id="lista"></div>
+</div>
+
+<div id="ventas" class="view" style="display:none;">
+  <h3>Punto de Venta</h3>
+  <div id="productos"></div>
+  <h3>Total: RD$ <span id="total">0</span></h3>
+</div>
+
+</div>
 </div>
 
 <script>
-let deferredPrompt;
+let productos = JSON.parse(localStorage.getItem('productos')) || [];
+let total = 0;
 
-// REGISTRAR SERVICE WORKER CORRECTAMENTE
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const reg = await navigator.serviceWorker.register('./service-worker.js');
-      console.log('Service Worker activo:', reg);
-    } catch (err) {
-      console.log('Error SW:', err);
-    }
+// Navegación
+function show(v){
+  document.querySelectorAll('.view').forEach(x=>x.style.display='none');
+  document.getElementById(v).style.display='block';
+  render();
+}
+
+// Inventario
+function agregarProducto(){
+  let nombre = document.getElementById('nombre').value;
+  let precio = parseFloat(document.getElementById('precio').value);
+
+  productos.push({nombre, precio});
+  localStorage.setItem('productos', JSON.stringify(productos));
+  render();
+}
+
+// Render
+function render(){
+  let lista = document.getElementById('lista');
+  let productosDiv = document.getElementById('productos');
+
+  lista.innerHTML = '';
+  productosDiv.innerHTML = '';
+
+  productos.forEach((p,i)=>{
+    lista.innerHTML += `
+      <div class="card">
+        ${p.nombre} - RD$ ${p.precio}
+      </div>
+    `;
+
+    productosDiv.innerHTML += `
+      <button onclick="vender(${p.precio})">
+        ${p.nombre} - RD$ ${p.precio}
+      </button>
+    `;
   });
 }
 
-// EVENTO PARA MOSTRAR BOTÓN INSTALAR
+// Ventas
+function vender(precio){
+  total += precio;
+  document.getElementById('total').innerText = total;
+  document.getElementById('totalVentas').innerText = 'RD$ ' + total;
+}
+
+// PWA
+let deferredPrompt;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    await navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   document.getElementById('installBtn').style.display = 'block';
 });
 
-// BOTÓN INSTALAR
 document.getElementById('installBtn').addEventListener('click', async () => {
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt = null;
   }
 });
+
+render();
 </script>
 
 </body>
