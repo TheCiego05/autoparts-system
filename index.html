@@ -54,14 +54,17 @@ let deferredPrompt;
 
 // REGISTRAR SERVICE WORKER CORRECTAMENTE
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => console.log('Service Worker activo'))
-      .catch(err => console.log('Error SW:', err));
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./service-worker.js');
+      console.log('Service Worker activo:', reg);
+    } catch (err) {
+      console.log('Error SW:', err);
+    }
   });
 }
 
-// CAPTURAR EVENTO DE INSTALACIÓN
+// EVENTO PARA MOSTRAR BOTÓN INSTALAR
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -76,6 +79,6 @@ document.getElementById('installBtn').addEventListener('click', async () => {
   }
 });
 </script>
-  
+
 </body>
 </html>
